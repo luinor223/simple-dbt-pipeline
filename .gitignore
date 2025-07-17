@@ -4,6 +4,11 @@ dbt_packages/
 logs/
 .dbt/
 
+# DuckDB database files
+data/
+*.duckdb
+*.duckdb.wal
+
 # Python
 __pycache__/
 *.py[cod]
