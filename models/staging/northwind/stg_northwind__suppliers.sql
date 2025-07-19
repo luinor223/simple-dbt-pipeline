@@ -1,11 +1,14 @@
 WITH source AS (
     SELECT *
-    FROM {{ source('raw_layer', 'customers') }}
+    FROM {{ source('raw_layer', 'suppliers') }}
 ),
 renamed AS (
     SELECT
-        customerID AS customer_id,
+        supplierID AS supplier_id,
         companyName AS company_name,
+        contactName AS contact_name,
+        contactTitle AS contact_title,
+        address,
         city,
         region,
         postalCode AS postal_code,

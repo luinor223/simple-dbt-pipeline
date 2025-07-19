@@ -1,0 +1,132 @@
+---
+version: 2
+
+models:
+  - name: stg_northwind__categories
+    description: "Standardized product categories from the raw categories table. Column names converted to snake_case."
+    columns:
+      - name: category_id
+        description: "Unique identifier for product category"
+        tests:
+          - unique
+          - not_null
+      - name: category_name
+        description: "Name of the product category (e.g., Beverages, Condiments)"
+        tests:
+          - not_null
+      - name: description
+        description: "Detailed description of the category"
+
+  - name: stg_northwind__customers
+    description: "Cleaned and standardized customer information. Contains company details and location data."
+    columns:
+      - name: customer_id
+        description: "Unique customer identifier (5-character code)"
+        tests:
+          - unique
+          - not_null
+      - name: company_name
+        description: "Customer company name"
+        tests:
+          - not_null
+      - name: city
+        description: "Customer city"
+      - name: region
+        description: "Customer state/region (may be null for some countries)"
+      - name: postal_code
+        description: "Customer postal/ZIP code"
+      - name: country
+        description: "Customer country"
+
+  - name: stg_northwind__order_details
+    description: "Individual line items for each order. Contains product details, pricing, and quantities."
+    columns:
+      - name: order_id
+        description: "Order identifier (foreign key to orders)"
+        tests:
+          - not_null
+      - name: product_id
+        description: "Product identifier (foreign key to products)"
+        tests:
+          - not_null
+      - name: unit_price
+        description: "Price per unit at time of order (may differ from current product price)"
+        tests:
+          - not_null
+      - name: quantity
+        description: "Number of units ordered"
+        tests:
+          - not_null
+      - name: discount
+        description: "Discount applied as decimal (0.0 = no discount, 0.25 = 25% discount)"
+
+  - name: stg_northwind__orders
+    description: "Order header information including customer, dates, and shipping details."
+    columns:
+      - name: order_id
+        description: "Unique order identifier"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Customer identifier (foreign key to customers)"
+        tests:
+          - not_null
+      - name: employee_id
+        description: "Employee who processed the order"
+      - name: order_date
+        description: "Date when the order was placed"
+      - name: required_date
+        description: "Date when customer needs the order"
+      - name: shipped_date
+        description: "Date when order was actually shipped (null if not shipped)"
+      - name: freight
+        description: "Shipping cost for the order"
+
+  - name: stg_northwind__products
+    description: "Product catalog with basic product information. Includes references to suppliers and categories."
+    columns:
+      - name: product_id
+        description: "Unique product identifier"
+        tests:
+          - unique
+          - not_null
+      - name: product_name
+        description: "Product name"
+        tests:
+          - not_null
+      - name: supplier_id
+        description: "Supplier identifier (foreign key to suppliers)"
+      - name: category_id
+        description: "Category identifier (foreign key to categories)"
+      - name: quantity_per_unit
+        description: "Packaging description (e.g., '10 boxes x 20 bags')"
+      - name: discontinued
+        description: "Product status (0 = active, 1 = discontinued)"
+
+  - name: stg_northwind__suppliers
+    description: "Supplier company information including contact details and location."
+    columns:
+      - name: supplier_id
+        description: "Unique supplier identifier"
+        tests:
+          - unique
+          - not_null
+      - name: company_name
+        description: "Supplier company name"
+        tests:
+          - not_null
+      - name: contact_name
+        description: "Primary contact person name"
+      - name: contact_title
+        description: "Contact person's job title"
+      - name: address
+        description: "Street address"
+      - name: city
+        description: "Supplier city"
+      - name: region
+        description: "Supplier state/region"
+      - name: postal_code
+        description: "Supplier postal/ZIP code"
+      - name: country
+        description: "Supplier country"

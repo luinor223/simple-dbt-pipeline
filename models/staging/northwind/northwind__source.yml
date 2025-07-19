@@ -8,8 +8,7 @@ sources:
     tables:
       - name: categories
         description: Product categories
-        config:
-          tags: [northwind, raw_layer]
+        tags: [northwind, raw_layer]
         columns:
           - name: categoryID
             description: Unique identifier for category
@@ -24,8 +23,7 @@ sources:
 
       - name: customers
         description: Customer information
-        config:
-          tags: [northwind, raw_layer]
+        tags: [northwind, raw_layer]
         columns:
           - name: customerID
             description: Unique customer identifier (5-character code)
@@ -49,8 +47,7 @@ sources:
 
       - name: order_details
         description: Individual line items for each order
-        config:
-          tags: [northwind, raw_layer]
+        tags: [northwind, raw_layer]
         columns:
           - name: orderID
             description: Order identifier (foreign key to orders)
@@ -82,8 +79,7 @@ sources:
 
       - name: orders
         description: Order header information
-        config:
-          tags: [northwind, raw_layer]
+        tags: [northwind, raw_layer]
         columns:
           - name: orderID
             description: Unique order identifier
@@ -115,8 +111,7 @@ sources:
 
       - name: products
         description: Product catalog
-        config:
-          tags: [northwind, raw_layer]
+        tags: [northwind, raw_layer]
         columns:
           - name: productID
             description: Unique product identifier
@@ -148,8 +143,7 @@ sources:
 
       - name: suppliers
         description: Supplier information
-        config:
-          tags: [northwind, raw_layer]
+        tags: [northwind, raw_layer]
         columns:
           - name: supplierID
             description: Unique supplier identifier
