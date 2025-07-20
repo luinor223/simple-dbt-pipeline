@@ -8,6 +8,7 @@ on:
       - 'dbt_project.yml'
       - 'profiles.yml'
       - 'raw_data/**'
+      - '.github/workflows/**'
   push:
     branches: [main]
     paths:
@@ -15,6 +16,7 @@ on:
       - 'dbt_project.yml'
       - 'profiles.yml'
       - 'raw_data/**'
+      - '.github/workflows/**'
   workflow_dispatch: # Allow manual triggers
 
 env:
