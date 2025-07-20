@@ -1,0 +1,141 @@
+name: dbt CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'models/**'
+      - 'dbt_project.yml'
+      - 'profiles.yml'
+      - 'raw_data/**'
+  push:
+    branches: [main]
+    paths:
+      - 'models/**'
+      - 'dbt_project.yml'
+      - 'profiles.yml'
+      - 'raw_data/**'
+  workflow_dispatch: # Allow manual triggers
+
+env:
+  DBT_PROFILES_DIR: .
+
+jobs:
+  # Job 1: Test on Pull Requests
+  test:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install dbt-duckdb==1.9.4
+
+      - name: Verify dbt installation
+        run: |
+          dbt --version
+          dbt debug --profiles-dir .
+
+      - name: Run dbt parse
+        run: dbt parse --profiles-dir .
+
+      - name: Run dbt compile
+        run: dbt compile --profiles-dir .
+
+      - name: Run dbt build (models + tests)
+        run: dbt build --profiles-dir .
+
+      - name: Generate documentation
+        run: dbt docs generate --profiles-dir .
+
+      - name: Upload dbt artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: dbt-artifacts-pr-${{ github.event.number }}
+          path: |
+            target/
+            !target/dbt_packages/
+
+  # Job 2: Deploy on Main Branch
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install dbt-duckdb==1.9.4
+
+      - name: Run dbt build (production)
+        run: |
+          dbt build --profiles-dir . --target prod
+          
+      - name: Generate and deploy documentation
+        run: |
+          dbt docs generate --profiles-dir . --target prod
+
+      - name: Upload production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dbt-artifacts-prod-${{ github.sha }}
+          path: |
+            target/
+            !target/dbt_packages/
+            data/prod.duckdb
+
+      - name: Deploy to GitHub Pages (docs)
+        if: success()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target
+          destination_dir: docs
+
+  # Job 3: Scheduled Production Refresh
+  scheduled-refresh:
+    if: github.event.schedule
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install dbt-duckdb==1.9.4
+
+      - name: Run scheduled data refresh
+        run: |
+          dbt run --profiles-dir . --target prod
+          dbt test --profiles-dir . --target prod
+
+      - name: Notify on failure
+        if: failure()
+        run: echo "Scheduled dbt run failed - check logs"

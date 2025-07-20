@@ -1,0 +1,43 @@
+name: dbt Quick Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+env:
+  DBT_PROFILES_DIR: .
+
+jobs:
+  quick-validation:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dbt
+        run: pip install dbt-duckdb==1.9.4
+
+      - name: Validate dbt project
+        run: |
+          echo "Validating dbt project structure..."
+          dbt parse --profiles-dir .
+          echo "dbt project validation passed!"
+
+      - name: Run data quality tests
+        run: |
+          echo "Running data quality tests..."
+          dbt test --profiles-dir .
+          echo "All tests passed!"
+
+      - name: Check model freshness (if applicable)
+        run: |
+          echo "Checking model performance..."
+          dbt compile --profiles-dir .
+          echo "Models compile successfully!"
