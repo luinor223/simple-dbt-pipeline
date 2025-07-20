@@ -89,6 +89,23 @@ jobs:
           python -m pip install --upgrade pip
           pip install dbt-duckdb==1.9.4
 
+      - name: Create data directory
+        run: mkdir -p data
+
+      - name: List project files (debug)
+        run: |
+          echo "Current directory contents:"
+          ls -la
+          echo "Profiles.yml content:"
+          cat profiles.yml
+          echo "dbt_project.yml content:"
+          head -15 dbt_project.yml
+
+      - name: Verify dbt configuration
+        run: |
+          dbt --version
+          dbt debug --profiles-dir .
+
       - name: Run dbt build (production)
         run: |
           dbt build --profiles-dir . --target prod
