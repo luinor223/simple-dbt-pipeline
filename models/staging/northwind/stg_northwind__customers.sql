@@ -1,5 +1,9 @@
 WITH source AS (
-    SELECT *
+    SELECT *,
+        ROW_NUMBER() OVER (
+               PARTITION BY customerID
+               ORDER BY customerID
+           ) AS row_num
     FROM {{ source('raw_layer', 'customers') }}
 ),
 renamed AS (
@@ -11,6 +15,8 @@ renamed AS (
         postalCode AS postal_code,
         country
     FROM source
+    WHERE customerID IS NOT NULL
+    AND row_num = 1
 )
 SELECT *
 FROM renamed

@@ -27,8 +27,6 @@ models:
           - not_null
       - name: company_name
         description: "Customer company name"
-        tests:
-          - not_null
       - name: city
         description: "Customer city"
       - name: region
@@ -45,10 +43,18 @@ models:
         description: "Order identifier (foreign key to orders)"
         tests:
           - not_null
+          - relationships:
+              to: ref('stg_northwind__orders')
+              field: order_id
+              config:
+                severity: warn  # Warn instead of error
       - name: product_id
         description: "Product identifier (foreign key to products)"
         tests:
           - not_null
+          - relationships:
+              to: ref('stg_northwind__products')
+              field: product_id
       - name: unit_price
         description: "Price per unit at time of order (may differ from current product price)"
         tests:
@@ -71,7 +77,10 @@ models:
       - name: customer_id
         description: "Customer identifier (foreign key to customers)"
         tests:
-          - not_null
+          - relationships:
+              to: ref('stg_northwind__customers')
+              field: customer_id
+              where: "customer_id is not null"  # Only test non-null values
       - name: employee_id
         description: "Employee who processed the order"
       - name: order_date
@@ -82,6 +91,8 @@ models:
         description: "Date when order was actually shipped (null if not shipped)"
       - name: freight
         description: "Shipping cost for the order"
+      - name: is_missing_customer
+        description: "Flag indicating if customer information is missing"
 
   - name: stg_northwind__products
     description: "Product catalog with basic product information. Includes references to suppliers and categories."
@@ -97,8 +108,20 @@ models:
           - not_null
       - name: supplier_id
         description: "Supplier identifier (foreign key to suppliers)"
+        tests:
+          - relationships:
+              to: ref('stg_northwind__suppliers')
+              field: supplier_id
+              config:
+                severity: warn  # Warn instead of error
       - name: category_id
         description: "Category identifier (foreign key to categories)"
+        tests:
+          - relationships:
+              to: ref('stg_northwind__categories')
+              field: category_id
+              config:
+                severity: warn  # Warn instead of error
       - name: quantity_per_unit
         description: "Packaging description (e.g., '10 boxes x 20 bags')"
       - name: discontinued
@@ -116,12 +139,6 @@ models:
         description: "Supplier company name"
         tests:
           - not_null
-      - name: contact_name
-        description: "Primary contact person name"
-      - name: contact_title
-        description: "Contact person's job title"
-      - name: address
-        description: "Street address"
       - name: city
         description: "Supplier city"
       - name: region

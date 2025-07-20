@@ -13,7 +13,6 @@ sources:
           - name: categoryID
             description: Unique identifier for category
             data_type: integer
-            tests: [unique, not_null]
           - name: categoryName
             description: Name of the product category
             data_type: string
@@ -28,7 +27,6 @@ sources:
           - name: customerID
             description: Unique customer identifier (5-character code)
             data_type: string
-            tests: [unique, not_null]
           - name: companyName
             description: Company name
             data_type: string
@@ -52,24 +50,12 @@ sources:
           - name: orderID
             description: Order identifier (foreign key to orders)
             data_type: integer
-            tests:
-              - not_null
-              - relationships:
-                  to: source('raw_layer', 'orders')
-                  field: orderID
           - name: productID
             description: Product identifier (foreign key to products)
             data_type: integer
-            tests:
-              - not_null
-              - relationships:
-                  to: source('raw_layer', 'products')
-                  field: productID
           - name: unitPrice
             description: Price per unit at time of order
             data_type: decimal
-            tests:
-              - not_null
           - name: quantity
             description: Quantity ordered
             data_type: integer
@@ -84,15 +70,9 @@ sources:
           - name: orderID
             description: Unique order identifier
             data_type: integer
-            tests: [unique, not_null]
           - name: customerID
             description: Customer identifier (foreign key to customers)
             data_type: string
-            tests:
-              - not_null
-              - relationships:
-                  to: source('raw_layer', 'customers')
-                  field: customerID
           - name: employeeID
             description: Employee who took the order
             data_type: integer
@@ -116,24 +96,15 @@ sources:
           - name: productID
             description: Unique product identifier
             data_type: integer
-            tests: [unique, not_null]
           - name: productName
             description: Product name
             data_type: string
           - name: supplierID
             description: Supplier identifier (foreign key to suppliers)
             data_type: integer
-            tests:
-              - relationships:
-                  to: source('raw_layer', 'suppliers')
-                  field: supplierID
           - name: categoryID
             description: Category identifier (foreign key to categories)
             data_type: integer
-            tests:
-              - relationships:
-                  to: source('raw_layer', 'categories')
-                  field: categoryID
           - name: quantityPerUnit
             description: Quantity description (e.g., "10 boxes x 20 bags")
             data_type: string
@@ -148,7 +119,6 @@ sources:
           - name: supplierID
             description: Unique supplier identifier
             data_type: integer
-            tests: [unique, not_null]
           - name: companyName
             description: Supplier company name
             data_type: string

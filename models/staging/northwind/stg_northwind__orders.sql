@@ -1,5 +1,9 @@
 WITH source AS (
-    SELECT *
+    SELECT *,
+        ROW_NUMBER() OVER (
+               PARTITION BY orderID
+               ORDER BY orderDate
+           ) AS row_num
     FROM {{ source('raw_layer', 'orders') }}
 ),
 renamed AS (
@@ -10,8 +14,14 @@ renamed AS (
         orderDate AS order_date,
         requiredDate AS required_date,
         shippedDate AS shipped_date,
-        freight
+        freight,
+        CASE
+            WHEN customerID IS NULL THEN TRUE
+            ELSE FALSE
+        END AS is_missing_customer
     FROM source
+    WHERE orderID IS NOT NULL
+    AND row_num = 1
 )
 SELECT *
 FROM renamed
