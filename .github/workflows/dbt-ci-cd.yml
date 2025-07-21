@@ -140,7 +140,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./target
-          destination_dir: docs
+          keep_files: false
+          force_orphan: true
 
   # Job 3: Scheduled Production Refresh
   scheduled-refresh:
