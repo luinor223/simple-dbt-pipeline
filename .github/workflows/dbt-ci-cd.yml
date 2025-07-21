@@ -6,7 +6,7 @@ on:
     paths:
       - 'models/**'
       - 'dbt_project.yml'
-      - 'profiles.yml'
+      - 'profiles.yml.template'
       - 'raw_data/**'
       - '.github/workflows/**'
   push:
@@ -14,13 +14,18 @@ on:
     paths:
       - 'models/**'
       - 'dbt_project.yml'
-      - 'profiles.yml'
+      - 'profiles.yml.template'
       - 'raw_data/**'
       - '.github/workflows/**'
   workflow_dispatch: # Allow manual triggers
 
 env:
   DBT_PROFILES_DIR: .
+  DBT_DEV_PATH: data/dev.duckdb
+  DBT_PROD_PATH: data/prod.duckdb
+  DBT_DEV_THREADS: 1
+  DBT_PROD_THREADS: 4
+  DBT_TARGET: prod  # Use prod target for CI/CD
 
 jobs:
   # Job 1: Test on Pull Requests
@@ -31,6 +36,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Create profiles.yml for CI/CD
+        run: cp profiles.yml.template profiles.yml
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -77,6 +85,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Create profiles.yml for CI/CD
+        run: cp profiles.yml.template profiles.yml
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -133,7 +144,7 @@ jobs:
 
   # Job 3: Scheduled Production Refresh
   scheduled-refresh:
-    if: github.event.schedule
+    if: github.event_name == 'schedule'
     runs-on: ubuntu-latest
     
     steps:

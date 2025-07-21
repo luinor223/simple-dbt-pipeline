@@ -16,6 +16,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Create profiles.yml for CI/CD
+        run: cp profiles.yml.template profiles.yml
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
