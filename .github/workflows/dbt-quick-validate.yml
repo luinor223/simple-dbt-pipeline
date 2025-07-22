@@ -46,14 +46,14 @@ jobs:
           dbt parse --profiles-dir .
           echo "dbt project validation passed!"
 
-      - name: Run data quality tests
+      - name: Build models and run tests
         run: |
-          echo "Running data quality tests..."
-          dbt test --profiles-dir .
-          echo "All tests passed!"
+          echo "Building models and running tests..."
+          dbt build --profiles-dir .
+          echo "All models built and tests passed!"
 
-      - name: Check model freshness (if applicable)
+      - name: Check model compilation
         run: |
-          echo "Checking model performance..."
+          echo "Checking model compilation..."
           dbt compile --profiles-dir .
           echo "Models compile successfully!"
