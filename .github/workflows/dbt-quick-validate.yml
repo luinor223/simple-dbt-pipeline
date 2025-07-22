@@ -7,6 +7,11 @@ on:
 
 env:
   DBT_PROFILES_DIR: .
+  DBT_DEV_PATH: data/dev.duckdb
+  DBT_PROD_PATH: data/prod.duckdb
+  DBT_DEV_THREADS: 1
+  DBT_PROD_THREADS: 4
+  DBT_TARGET: prod  # Use prod target for CI/CD
 
 jobs:
   quick-validation:
@@ -26,8 +31,16 @@ jobs:
 
       - name: Install dbt
         run: pip install dbt-duckdb==1.9.4
+      
+      - name: Create data directory
+        run: mkdir -p data
 
-      - name: Validate dbt project
+      - name: Verify dbt configuration
+        run: |
+          dbt --version
+          dbt debug --profiles-dir .
+
+      - name: Run dbt parse
         run: |
           echo "Validating dbt project structure..."
           dbt parse --profiles-dir .
