@@ -35,6 +35,8 @@ models:
         description: "Customer postal/ZIP code"
       - name: country
         description: "Customer country"
+      - name: updated_at
+        description: "Timestamp of last update to customer information"
 
   - name: stg_northwind__order_details
     description: "Individual line items for each order. Contains product details, pricing, and quantities."
@@ -126,6 +128,8 @@ models:
         description: "Packaging description (e.g., '10 boxes x 20 bags')"
       - name: discontinued
         description: "Product status (0 = active, 1 = discontinued)"
+      - name: updated_at
+        description: "Timestamp of last update to product information"
 
   - name: stg_northwind__suppliers
     description: "Supplier company information including contact details and location."
@@ -147,3 +151,5 @@ models:
         description: "Supplier postal/ZIP code"
       - name: country
         description: "Supplier country"
+      - name: updated_at
+        description: "Timestamp of last update to supplier information"

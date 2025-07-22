@@ -42,6 +42,9 @@ sources:
           - name: country
             description: Country
             data_type: string
+          - name: updated_at
+            description: Timestamp of last update
+            data_type: timestamp
 
       - name: order_details
         description: Individual line items for each order
@@ -111,6 +114,9 @@ sources:
           - name: discontinued
             description: Whether product is discontinued (0=active, 1=discontinued)
             data_type: integer
+          - name: updated_at
+            description: Timestamp of last update
+            data_type: timestamp
 
       - name: suppliers
         description: Supplier information
@@ -134,3 +140,6 @@ sources:
           - name: country
             description: Country
             data_type: string
+          - name: updated_at
+            description: Timestamp of last update
+            data_type: timestamp
