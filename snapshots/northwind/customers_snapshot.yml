@@ -1,0 +1,11 @@
+version: 2
+
+snapshots:
+  - name: northwind__customers_snapshot
+    description: "Snapshot of customer data to track changes over time."
+    relation: ref('stg_northwind__customers')
+    config:
+      unique_key: customer_id
+      strategy: timestamp
+      updated_at: updated_at
+      target_schema: snapshots

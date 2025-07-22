@@ -1,0 +1,11 @@
+version: 2
+
+snapshots:
+  - name: northwind__suppliers_snapshot
+    description: "Snapshot of supplier data to track changes over time."
+    relation: ref('stg_northwind__suppliers')
+    config:
+      unique_key: supplier_id
+      strategy: timestamp
+      updated_at: updated_at
+      target_schema: snapshots

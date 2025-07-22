@@ -13,7 +13,8 @@ renamed AS (
         supplierID AS supplier_id,
         categoryID AS category_id,
         quantityPerUnit AS quantity_per_unit,
-        discontinued
+        discontinued,
+        updated_at
     FROM source
     WHERE productID IS NOT NULL
     AND row_num = 1

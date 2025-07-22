@@ -1,0 +1,11 @@
+version: 2
+
+snapshots:
+  - name: northwind__products_snapshot
+    description: "Snapshot of product data to track changes over time."
+    relation: ref('stg_northwind__products')
+    config:
+      unique_key: product_id
+      strategy: timestamp
+      updated_at: updated_at
+      target_schema: snapshots

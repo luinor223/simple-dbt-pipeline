@@ -13,7 +13,8 @@ renamed AS (
         city,
         region,
         postalCode AS postal_code,
-        country
+        country,
+        updated_at
     FROM source
     WHERE supplierID IS NOT NULL
     AND row_num = 1
