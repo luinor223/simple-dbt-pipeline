@@ -1,0 +1,396 @@
+---
+version: 2
+
+models:
+  - name: dim_customers
+    description: "Customer dimension table with Type 2 SCD tracking. Contains historical customer information with validity periods."
+    columns:
+      - name: customer_key
+        description: "Surrogate key for customer dimension (composite of customer_id + dbt_valid_from)"
+        data_type: varchar
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Natural key - 5-character customer identifier"
+        data_type: varchar
+        tests:
+          - not_null
+      - name: company_name
+        description: "Customer company name"
+        data_type: varchar
+      - name: city
+        description: "Customer city"
+        data_type: varchar
+      - name: region
+        description: "Customer state/region"
+        data_type: varchar
+      - name: country
+        description: "Customer country"
+        data_type: varchar
+      - name: dbt_valid_from
+        description: "Start date when this version of the customer record became effective"
+        data_type: timestamp
+        tests:
+          - not_null
+      - name: dbt_valid_to
+        description: "End date when this version of the customer record stopped being effective (NULL for current)"
+        data_type: timestamp
+      - name: is_current_version
+        description: "Flag indicating if this is the current active version of the customer record"
+        data_type: boolean
+
+  - name: dim_suppliers
+    description: "Supplier dimension table with Type 2 SCD tracking. Contains historical supplier information with validity periods."
+    columns:
+      - name: supplier_key
+        description: "Surrogate key for supplier dimension (composite of supplier_id + dbt_valid_from)"
+        data_type: varchar
+        tests:
+          - unique
+          - not_null
+      - name: supplier_id
+        description: "Natural key - unique supplier identifier"
+        data_type: integer
+        tests:
+          - not_null
+      - name: company_name
+        description: "Supplier company name"
+        data_type: varchar
+      - name: city
+        description: "Supplier city"
+        data_type: varchar
+      - name: region
+        description: "Supplier state/region"
+        data_type: varchar
+      - name: postal_code
+        description: "Supplier postal/ZIP code"
+        data_type: varchar
+      - name: country
+        description: "Supplier country"
+        data_type: varchar
+      - name: dbt_valid_from
+        description: "Start date when this version of the supplier record became effective"
+        data_type: timestamp
+        tests:
+          - not_null
+      - name: dbt_valid_to
+        description: "End date when this version of the supplier record stopped being effective (NULL for current)"
+        data_type: timestamp
+      - name: is_current_version
+        description: "Flag indicating if this is the current active version of the supplier record"
+        data_type: boolean
+
+  - name: dim_products
+    description: "Product dimension table with Type 2 SCD tracking and enriched with supplier and category information using point-in-time joins."
+    columns:
+      - name: product_key
+        description: "Surrogate key for product dimension (composite of product_id + dbt_valid_from)"
+        data_type: varchar
+        tests:
+          - unique
+          - not_null
+      - name: product_id
+        description: "Natural key - unique product identifier"
+        data_type: integer
+        tests:
+          - not_null
+      - name: product_name
+        description: "Product name"
+        data_type: varchar
+      - name: supplier_key
+        description: "Foreign key to dim_suppliers (point-in-time accurate)"
+        data_type: varchar
+        tests:
+          - relationships:
+              to: ref('dim_suppliers')
+              field: supplier_key
+              config:
+                severity: warn
+      - name: category_id
+        description: "Category identifier"
+        data_type: integer
+      - name: category_name
+        description: "Product category name"
+        data_type: varchar
+      - name: category_description
+        description: "Detailed description of the product category"
+        data_type: text
+      - name: quantity_per_unit
+        description: "Packaging description (e.g., '10 boxes x 20 bags')"
+        data_type: varchar
+      - name: discontinued
+        description: "Product status (0 = active, 1 = discontinued)"
+        data_type: integer
+      - name: dbt_valid_from
+        description: "Start date when this version of the product record became effective"
+        data_type: timestamp
+        tests:
+          - not_null
+      - name: dbt_valid_to
+        description: "End date when this version of the product record stopped being effective (NULL for current)"
+        data_type: timestamp
+      - name: is_current_version
+        description: "Flag indicating if this is the current active version of the product record"
+        data_type: boolean
+
+  - name: dim_date
+    description: "Date dimension table providing comprehensive date attributes for temporal analysis. Covers years 2024-2030."
+    columns:
+      - name: date_key
+        description: "Surrogate key in YYYYMMDD format (e.g., 20240715)"
+        data_type: integer
+        tests:
+          - unique
+          - not_null
+      - name: date
+        description: "Actual date value"
+        data_type: date
+        tests:
+          - unique
+          - not_null
+      - name: day_of_week
+        description: "Day of week as number (0=Sunday, 1=Monday, etc.)"
+        data_type: integer
+      - name: day_of_week_name
+        description: "Full day name (Sunday, Monday, Tuesday, etc.)"
+        data_type: varchar
+      - name: day_of_month
+        description: "Day of the month (1-31)"
+        data_type: integer
+      - name: day_of_year
+        description: "Day of the year (1-366)"
+        data_type: integer
+      - name: month
+        description: "Month as number (1-12)"
+        data_type: integer
+      - name: month_name
+        description: "Full month name (January, February, etc.)"
+        data_type: varchar
+      - name: month_year
+        description: "Month and year in YYYY-MM format"
+        data_type: varchar
+      - name: quarter
+        description: "Quarter as number (1-4)"
+        data_type: integer
+      - name: quarter_year
+        description: "Quarter and year (e.g., 2024-Q1)"
+        data_type: varchar
+      - name: year
+        description: "Year as 4-digit number"
+        data_type: integer
+
+  - name: dim_order_date
+    description: "Order date dimension view - provides order-specific date attributes by referencing dim_date."
+    columns:
+      - name: order_date_key
+        description: "Date key for order date in YYYYMMDD format"
+        data_type: integer
+        tests:
+          - not_null
+      - name: order_date
+        description: "Order date value"
+        data_type: date
+      - name: order_day_of_week
+        description: "Day of week when order was placed"
+        data_type: integer
+      - name: order_day_of_week_name
+        description: "Day name when order was placed"
+        data_type: varchar
+      - name: order_day_of_month
+        description: "Day of month when order was placed"
+        data_type: integer
+      - name: order_day_of_year
+        description: "Day of year when order was placed"
+        data_type: integer
+      - name: order_month
+        description: "Month when order was placed"
+        data_type: integer
+      - name: order_month_name
+        description: "Month name when order was placed"
+        data_type: varchar
+      - name: order_month_year
+        description: "Month-year when order was placed"
+        data_type: varchar
+      - name: order_quarter
+        description: "Quarter when order was placed"
+        data_type: integer
+      - name: order_quarter_year
+        description: "Quarter-year when order was placed"
+        data_type: varchar
+      - name: order_year
+        description: "Year when order was placed"
+        data_type: integer
+
+  - name: dim_required_date
+    description: "Required date dimension view - provides required-date-specific attributes by referencing dim_date."
+    columns:
+      - name: required_date_key
+        description: "Date key for required date in YYYYMMDD format"
+        data_type: integer
+        tests:
+          - not_null
+      - name: required_date
+        description: "Required date value"
+        data_type: date
+      - name: required_day_of_week
+        description: "Day of week when order is required"
+        data_type: integer
+      - name: required_day_of_week_name
+        description: "Day name when order is required"
+        data_type: varchar
+      - name: required_day_of_month
+        description: "Day of month when order is required"
+        data_type: integer
+      - name: required_day_of_year
+        description: "Day of year when order is required"
+        data_type: integer
+      - name: required_month
+        description: "Month when order is required"
+        data_type: integer
+      - name: required_month_name
+        description: "Month name when order is required"
+        data_type: varchar
+      - name: required_month_year
+        description: "Month-year when order is required"
+        data_type: varchar
+      - name: required_quarter
+        description: "Quarter when order is required"
+        data_type: integer
+      - name: required_quarter_year
+        description: "Quarter-year when order is required"
+        data_type: varchar
+      - name: required_year
+        description: "Year when order is required"
+        data_type: integer
+
+  - name: dim_shipped_date
+    description: "Shipped date dimension view - provides shipped-date-specific attributes by referencing dim_date."
+    columns:
+      - name: shipped_date_key
+        description: "Date key for shipped date in YYYYMMDD format"
+        data_type: integer
+        tests:
+          - not_null
+      - name: shipped_date
+        description: "Shipped date value"
+        data_type: date
+      - name: shipped_day_of_week
+        description: "Day of week when order was shipped"
+        data_type: integer
+      - name: shipped_day_of_week_name
+        description: "Day name when order was shipped"
+        data_type: varchar
+      - name: shipped_day_of_month
+        description: "Day of month when order was shipped"
+        data_type: integer
+      - name: shipped_day_of_year
+        description: "Day of year when order was shipped"
+        data_type: integer
+      - name: shipped_month
+        description: "Month when order was shipped"
+        data_type: integer
+      - name: shipped_month_name
+        description: "Month name when order was shipped"
+        data_type: varchar
+      - name: shipped_month_year
+        description: "Month-year when order was shipped"
+        data_type: varchar
+      - name: shipped_quarter
+        description: "Quarter when order was shipped"
+        data_type: integer
+      - name: shipped_quarter_year
+        description: "Quarter-year when order was shipped"
+        data_type: varchar
+      - name: shipped_year
+        description: "Year when order was shipped"
+        data_type: integer
+
+  - name: fct_sales
+    description: "Sales fact table with point-in-time dimensional relationships. Contains order line items with historical accuracy through SCD Type 2 joins."
+    columns:
+      - name: sales_key
+        description: "Surrogate key for sales fact (composite of order_id + product_id)"
+        data_type: varchar
+        tests:
+          - unique
+          - not_null
+      - name: customer_key
+        description: "Foreign key to dim_customers (point-in-time accurate)"
+        data_type: varchar
+        tests:
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_key
+              config:
+                severity: warn
+      - name: product_key
+        description: "Foreign key to dim_products (point-in-time accurate)"
+        data_type: varchar
+        tests:
+          - relationships:
+              to: ref('dim_products')
+              field: product_key
+              config:
+                severity: warn
+      - name: order_date_key
+        description: "Foreign key to dim_order_date"
+        data_type: integer
+        tests:
+          - relationships:
+              to: ref('dim_order_date')
+              field: order_date_key
+              config:
+                severity: warn
+      - name: required_date_key
+        description: "Foreign key to dim_required_date"
+        data_type: integer
+        tests:
+          - relationships:
+              to: ref('dim_required_date')
+              field: required_date_key
+              config:
+                severity: warn
+      - name: shipped_date_key
+        description: "Foreign key to dim_shipped_date (NULL for unshipped orders)"
+        data_type: integer
+        tests:
+          - relationships:
+              to: ref('dim_shipped_date')
+              field: shipped_date_key
+              config:
+                severity: warn
+      - name: order_id
+        description: "Natural key - order identifier"
+        data_type: integer
+        tests:
+          - not_null
+      - name: product_id
+        description: "Natural key - product identifier"
+        data_type: integer
+        tests:
+          - not_null
+      - name: sales_quantity
+        description: "Quantity of product sold"
+        data_type: integer
+        tests:
+          - not_null
+      - name: regular_unit_price
+        description: "Original unit price before discount"
+        data_type: decimal
+        tests:
+          - not_null
+      - name: discount_unit_price
+        description: "Discount amount per unit"
+        data_type: decimal
+      - name: net_unit_price
+        description: "Final unit price after discount"
+        data_type: decimal
+      - name: extended_discount_amount
+        description: "Total discount amount for the line item"
+        data_type: decimal
+      - name: extended_sales_amount
+        description: "Total sales amount for the line item (after discount)"
+        data_type: decimal
+        tests:
+          - not_null
