@@ -7,42 +7,53 @@ models:
     columns:
       - name: category_id
         description: "Unique identifier for product category"
+        data_type: integer
         tests:
           - unique
           - not_null
       - name: category_name
         description: "Name of the product category (e.g., Beverages, Condiments)"
+        data_type: varchar
         tests:
           - not_null
       - name: description
         description: "Detailed description of the category"
+        data_type: text
 
   - name: stg_northwind__customers
     description: "Cleaned and standardized customer information. Contains company details and location data."
     columns:
       - name: customer_id
         description: "Unique customer identifier (5-character code)"
+        data_type: varchar
         tests:
           - unique
           - not_null
       - name: company_name
         description: "Customer company name"
+        data_type: varchar
       - name: city
         description: "Customer city"
+        data_type: varchar
       - name: region
         description: "Customer state/region (may be null for some countries)"
+        data_type: varchar
       - name: postal_code
         description: "Customer postal/ZIP code"
+        data_type: varchar
       - name: country
         description: "Customer country"
+        data_type: varchar
       - name: updated_at
         description: "Timestamp of last update to customer information"
+        data_type: timestamp
 
   - name: stg_northwind__order_details
     description: "Individual line items for each order. Contains product details, pricing, and quantities."
     columns:
       - name: order_id
         description: "Order identifier (foreign key to orders)"
+        data_type: integer
         tests:
           - not_null
           - relationships:
@@ -52,6 +63,7 @@ models:
                 severity: warn  # Warn instead of error
       - name: product_id
         description: "Product identifier (foreign key to products)"
+        data_type: integer
         tests:
           - not_null
           - relationships:
@@ -59,25 +71,30 @@ models:
               field: product_id
       - name: unit_price
         description: "Price per unit at time of order (may differ from current product price)"
+        data_type: decimal
         tests:
           - not_null
       - name: quantity
         description: "Number of units ordered"
+        data_type: integer
         tests:
           - not_null
       - name: discount
         description: "Discount applied as decimal (0.0 = no discount, 0.25 = 25% discount)"
+        data_type: decimal
 
   - name: stg_northwind__orders
     description: "Order header information including customer, dates, and shipping details."
     columns:
       - name: order_id
         description: "Unique order identifier"
+        data_type: integer
         tests:
           - unique
           - not_null
       - name: customer_id
         description: "Customer identifier (foreign key to customers)"
+        data_type: varchar
         tests:
           - relationships:
               to: ref('stg_northwind__customers')
@@ -85,31 +102,40 @@ models:
               where: "customer_id is not null"  # Only test non-null values
       - name: employee_id
         description: "Employee who processed the order"
+        data_type: integer
       - name: order_date
         description: "Date when the order was placed"
+        data_type: date
       - name: required_date
         description: "Date when customer needs the order"
+        data_type: date
       - name: shipped_date
         description: "Date when order was actually shipped (null if not shipped)"
+        data_type: date
       - name: freight
         description: "Shipping cost for the order"
+        data_type: decimal
       - name: is_missing_customer
         description: "Flag indicating if customer information is missing"
+        data_type: boolean
 
   - name: stg_northwind__products
     description: "Product catalog with basic product information. Includes references to suppliers and categories."
     columns:
       - name: product_id
         description: "Unique product identifier"
+        data_type: integer
         tests:
           - unique
           - not_null
       - name: product_name
         description: "Product name"
+        data_type: varchar
         tests:
           - not_null
       - name: supplier_id
         description: "Supplier identifier (foreign key to suppliers)"
+        data_type: integer
         tests:
           - relationships:
               to: ref('stg_northwind__suppliers')
@@ -118,6 +144,7 @@ models:
                 severity: warn  # Warn instead of error
       - name: category_id
         description: "Category identifier (foreign key to categories)"
+        data_type: integer
         tests:
           - relationships:
               to: ref('stg_northwind__categories')
@@ -126,30 +153,40 @@ models:
                 severity: warn  # Warn instead of error
       - name: quantity_per_unit
         description: "Packaging description (e.g., '10 boxes x 20 bags')"
+        data_type: varchar
       - name: discontinued
         description: "Product status (0 = active, 1 = discontinued)"
+        data_type: integer
       - name: updated_at
         description: "Timestamp of last update to product information"
+        data_type: timestamp
 
   - name: stg_northwind__suppliers
     description: "Supplier company information including contact details and location."
     columns:
       - name: supplier_id
         description: "Unique supplier identifier"
+        data_type: integer
         tests:
           - unique
           - not_null
       - name: company_name
         description: "Supplier company name"
+        data_type: varchar
         tests:
           - not_null
       - name: city
         description: "Supplier city"
+        data_type: varchar
       - name: region
         description: "Supplier state/region"
+        data_type: varchar
       - name: postal_code
         description: "Supplier postal/ZIP code"
+        data_type: varchar
       - name: country
         description: "Supplier country"
+        data_type: varchar
       - name: updated_at
         description: "Timestamp of last update to supplier information"
+        data_type: timestamp
