@@ -36,3 +36,9 @@ models:
       +materialized: view
       +tags: [northwind, staging]
       +schema: staging
+    # Config indicated by - and applies to all files under models/marts/
+    marts:
+      core:
+        +materialized: table
+        +tags: [northwind, marts_core]
+        +schema: marts_core

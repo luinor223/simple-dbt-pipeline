@@ -11,9 +11,10 @@ renamed AS (
         orderID AS order_id,
         customerID AS customer_id,
         employeeID AS employee_id,
-        orderDate AS order_date,
-        requiredDate AS required_date,
-        shippedDate AS shipped_date,
+        -- Force string conversion then parse to date
+        TRY_CAST(NULLIF(CAST(orderDate AS VARCHAR), 'NULL') AS DATE) AS order_date,
+        TRY_CAST(NULLIF(CAST(requiredDate AS VARCHAR), 'NULL') AS DATE) AS required_date,
+        TRY_CAST(NULLIF(CAST(shippedDate AS VARCHAR), 'NULL') AS DATE) AS shipped_date,
         freight,
         CASE
             WHEN customerID IS NULL THEN TRUE
