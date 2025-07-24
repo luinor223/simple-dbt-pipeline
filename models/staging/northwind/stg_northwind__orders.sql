@@ -11,9 +11,9 @@ renamed AS (
         orderID AS order_id,
         customerID AS customer_id,
         employeeID AS employee_id,
-        orderDate AS order_date,
-        requiredDate AS required_date,
-        shippedDate AS shipped_date,
+        orderDate::date AS order_date,
+        requiredDate::date AS required_date,
+        shippedDate::date AS shipped_date,
         freight,
         CASE
             WHEN customerID IS NULL THEN TRUE
